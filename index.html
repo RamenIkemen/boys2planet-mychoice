@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOYS II PLANET 好き顔セレクト</title>
+    <title>BOYS II PLANET 好き顔メーカー</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #fff5f8; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 700px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(255, 105, 180, 0.15); }
@@ -65,7 +65,7 @@
 </div>
 
 <script>
-    // エクセルから読み込んだ全172名データ
+    // 全172名データ
     const participants = [
         // --- Kグループ (80名) ---
         { jp: "アンドリュー", ko: "앤드류", en: "ANDREW", group: "K" },
@@ -110,7 +110,7 @@
         { jp: "イ・ヒョンス", ko: "이현수", en: "LEE HYEON SU", group: "K" },
         { jp: "イ・ジェフン", ko: "이재훈", en: "LEE JAE HOON", group: "K" },
         { jp: "イ・ジョンヒョク", ko: "이종혁", en: "LEE JONG HYEOK", group: "K" },
-        { jp: "イ・ジュヒョン", ko: "이주ヒョク/ジュヒョン", en: "LEE JU HYEON", group: "K" },
+        { jp: "イ・ジュヒョン", ko: "이주ヒョク", en: "LEE JU HYEON", group: "K" },
         { jp: "イ・カンヒ", ko: "이강희", en: "LEE KANG HEE", group: "K" },
         { jp: "イ・ミンジェ", ko: "이민재", en: "LEE MIN JAE", group: "K" },
         { jp: "イ・サンウォン", ko: "이상원", en: "LEE SAN WON", group: "K" },
@@ -136,7 +136,7 @@
         { jp: "ソ・イヌ", ko: "서인우", en: "SEO IN U", group: "K" },
         { jp: "ソ・ギョンベ", ko: "서경배", en: "SEO KYEONG BAE", group: "K" },
         { jp: "ソ・スンヒョン", ko: "서승현", en: "SEO SEUNG HYEON", group: "K" },
-        { jp: "ソク・マシューの兄等？/ソク...", ko: "석...", en: "석...", group: "K" },
+        { jp: "ソク・マシューの兄等", ko: "석...", en: "석...", group: "K" },
         { jp: "ソン・ヒョンソク", ko: "손현석", en: "SON HYEON SEOK", group: "K" },
         { jp: "ソン・ギョンヒョン", ko: "송경현", en: "SONG KYEONG HYEON", group: "K" },
         { jp: "ソン・ミンギュ", ko: "송민규", en: "SONG MIN GYU", group: "K" },
@@ -199,7 +199,7 @@
         { jp: "ファン・ジャンユー", ko: "황장위", en: "HUANG JIANGYU", group: "C" },
         { jp: "ファン・ジンイー", ko: "황징이", en: "HUANG JINGYI", group: "C" },
         { jp: "ファン・ジュアン", ko: "황촨", en: "HUANG CHUAN", group: "C" },
-        { jp: "ファン・ユクン(重複分/記載)", ko: "황위쿤2", en: "HUANG YUKUN2", group: "C" },
+        { jp: "ファン・ユクン2", ko: "황위쿤2", en: "HUANG YUKUN2", group: "C" },
         { jp: "ジアン・イーフー", ko: "장위푸", en: "JIANG YUFU", group: "C" },
         { jp: "ジャン・チーハオ", ko: "장치하오", en: "JIANG QIHAO", group: "C" },
         { jp: "ジン・ヘンボー", ko: "진헝보", en: "JIN HENGBO", group: "C" },
@@ -231,14 +231,14 @@
         { jp: "チェン・カイユアン", ko: "천카이위안", en: "CHEN KAIYUAN", group: "C" },
         { jp: "チェン・リン", ko: "천린", en: "CHEN LIN", group: "C" },
         { jp: "チェン・ユアン", ko: "천위안", en: "CHEN YUAN", group: "C" },
-        { jp: "チェン・ズーハン", ko: "천쯔한", en: "ZIXUAN/CHEN", en: "C" },
+        { jp: "チェン・ズーハン", ko: "천쯔한", en: "ZIXUAN/CHEN", group: "C" },
         { jp: "ダオ・ラン", ko: "다오란", en: "DAO LAN", group: "C" },
         { jp: "ファン・ハオラン", ko: "황하오란", en: "HUANG HAORAN", group: "C" },
         { jp: "カン・ユエン2", ko: "캉위안", en: "KANG YUAN 2", group: "C" },
         { jp: "リー・ハイミン", ko: "리하이밍", en: "LI HAIMING", group: "C" },
         { jp: "リン・チーホウ2", ko: "린치후2", en: "LIN QIHOU 2", group: "C" },
         { jp: "ルオ・ジンユー", ko: "뤄징위", en: "LUO JINGYU", group: "C" },
-        { jp: "ワン・ジンウク等重複整理", ko: "왕...", en: "WANG...", group: "C" },
+        { jp: "ワン・ジンウク等", ko: "왕...", en: "WANG...", group: "C" },
         { jp: "ヤン・チーハオ2", ko: "양치하오2", en: "YANG QIHAO 2", group: "C" },
         { jp: "ザオ・ユアン", ko: "자오위안", en: "ZHAO YUAN", group: "C" },
         { jp: "ザオ・ユールイ2", ko: "자오위루이2", en: "ZHAO YURUI 2", group: "C" }
@@ -247,8 +247,6 @@
     let currentMode = 'ALL';
     let pool = [];
     let historyList = [];
-    let totalRounds = 0;
-    let currentRound = 0;
 
     function setMode(mode) {
         currentMode = mode;
@@ -266,8 +264,6 @@
     function restart() {
         const source = getFilteredList();
         pool = [...source].sort(() => Math.random() - 0.5);
-        totalRounds = pool.length;
-        currentRound = 1;
         historyList = [];
         document.getElementById('battle-area').style.display = 'block';
         document.getElementById('result').style.display = 'none';
@@ -313,6 +309,7 @@
     }
 
     function vote(choiceIdx) {
+        if (pool.length < 2) return;
         const winner = choiceIdx === 0 ? pool[0] : pool;
         historyList.push(winner);
         pool.splice(0, 2);
@@ -340,8 +337,9 @@
     }
 
     function showResult() {
-        showFinalWinner(pool[0]);
+        if (pool.length > 0) showFinalWinner(pool[0]);
     }
+
     restart();
 </script>
 
