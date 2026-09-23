@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOYS II PLANET 好き顔セレクト</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #fff5f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(255, 105, 180, 0.15); }
+        h1 { color: #d63384; font-size: 24px; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #888; margin-bottom: 20px; }
+        .selector { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        button { padding: 12px 20px; font-size: 15px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; background: #ffe4ec; color: #d63384; transition: 0.2s; }
+        button.active, button:hover { background: #d63384; color: white; }
+        .card-container { display: flex; justify-content: space-around; gap: 15px; margin: 20px 0; }
+        .card { flex: 1; border: 2px solid #ffe4ec; border-radius: 12px; padding: 20px 10px; cursor: pointer; background: #fafafa; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 220px; }
+        .card:hover { border-color: #d63384; background: #fff0f5; transform: translateY(-3px); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        .badge.K { background: #e0f2fe; color: #0284c7; }
+        .badge.C { background: #fef3c7; color: #d97706; }
+        .name-jp { font-size: 20px; font-weight: bold; margin: 5px 0; }
+        .name-sub { font-size: 12px; color: #666; margin: 2px 0; }
+        #progress { font-size: 14px; color: #666; margin-bottom: 10px; }
+        #result { margin-top: 20px; display: none; }
+        .winner-card { background: #fff0f5; border: 2px solid #d63384; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .restart-btn { background: #333; color: white; padding: 12px 30px; font-size: 16px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>BOYS II PLANET 好き顔メーカー</h1>
+    <p class="subtitle">K(80名) / C(92名) 総勢172名から運命の推しを探す！</p>
+    
+    <div class="selector">
+        <button onclick="setMode('K')" id="btn-K">Kグループのみ (80名)</button>
+        <button onclick="setMode('C')" id="btn-C">Cグループのみ (92名)</button>
+        <button onclick="setMode('ALL')" id="btn-ALL" class="active">混合 K+C (172名)</button>
+    </div>
+
+    <div id="battle-area">
+        <p id="progress">残り対戦数計算中...</p>
+        <div class="card-container">
+            <div class="card" id="card0" onclick="vote(0)">
+                <span class="badge" id="badge0">K</span>
+                <div class="name-jp" id="nameJp0">日本語名</div>
+                <div class="name-sub" id="nameKo0">한국명</div>
+                <div class="name-sub" id="nameEn0">English</div>
+            </div>
+            <div class="card" id="card1" onclick="vote(1)">
+                <span class="badge" id="badge1">C</span>
+                <div class="name-jp" id="nameJp1">日本語名</div>
+                <div class="name-sub" id="nameKo1">한국명</div>
+                <div class="name-sub" id="nameEn1">English</div>
+            </div>
+        </div>
+        <p style="font-size: 12px; color: #999;">好きな方（ビジュアル・雰囲気が刺さる方）のカードをクリック！</p>
+    </div>
+
+    <div id="result">
+        <h2>👑 あなたの王座（一番の推し）</h2>
+        <div class="winner-card" id="winner-box"></div>
+        <button class="restart-btn" onclick="restart()">もう一回やる</button>
+    </div>
+</div>
+
+<script>
+    // エクセルから読み込んだ全172名データ
+    const participants = [
+        // --- Kグループ (80名) ---
+        { jp: "アンドリュー", ko: "앤드류", en: "ANDREW", group: "K" },
+        { jp: "アオシ", ko: "아오시", en: "AOSHI", group: "K" },
+        { jp: "アークティック", ko: "아틱", en: "ARCTIC", group: "K" },
+        { jp: "ペク・ジェヒョン", ko: "백제현", en: "BAEK JAE HYEON", group: "K" },
+        { jp: "バン・ジュンヒョク", ko: "방준혁", en: "BANG JUN HYUK", group: "K" },
+        { jp: "バン・スファン", ko: "방수환", en: "BANG SU HWAN", group: "K" },
+        { jp: "チョ・ミョンス", ko: "조명수", en: "CHO MYEONG SU", group: "K" },
+        { jp: "チェ・ジュンソク", ko: "최준석", en: "CHOI JUN SEOK", group: "K" },
+        { jp: "クリス", ko: "크리스", en: "CHRIS", group: "K" },
+        { jp: "チェ・リブ", ko: "최립우", en: "CHUEI LI YU", group: "K" },
+        { jp: "ダニエル・ヒョンウ・ラパポート", ko: "다니엘 현우 라파포트", en: "DANIEL HYUN WOO RAPAPORT", group: "K" },
+        { jp: "ハン・ソジン", ko: "한소진", en: "HAN SO JIN", group: "K" },
+        { jp: "ホン・ゴン", ko: "홍건", en: "HONG GEON", group: "K" },
+        { jp: "ホン・イサク", ko: "홍이삭", en: "HONG I SAK", group: "K" },
+        { jp: "ホ・ジュニョク", ko: "허준혁", en: "HUH JUN HYUK", group: "K" },
+        { jp: "ヒョン・ビョングク", ko: "현병국", en: "HYUN BYEONG GUK", group: "K" },
+        { jp: "チョン・ヒョク", ko: "정혁", en: "JEONG HYEOK", group: "K" },
+        { jp: "ジョン・ミンギュ", ko: "정민규", en: "JEONG MIN GYU", group: "K" },
+        { jp: "チョン・セユン", ko: "정세윤", en: "JEONG SE YUN", group: "K" },
+        { jp: "ジン・ウソク", ko: "진우석", en: "JIN WOO SEOK", group: "K" },
+        { jp: "チョ・ヒョンウ", ko: "조현우", en: "JO HYUN WOO", group: "K" },
+        { jp: "チョ・ファンジ", ko: "조환지", en: "JO HWAN JI", group: "K" },
+        { jp: "ジュ・チャンウル", ko: "주창울", en: "JU CHANG UUL", group: "K" },
+        { jp: "カン・ハジュン", ko: "강하준", en: "KANG HA JUN", group: "K" },
+        { jp: "カン・ヒョンウ", ko: "강현우", en: "KANG HYUN WOO", group: "K" },
+        { jp: "カン・ミンソ", ko: "강민서", en: "KANG MIN SEO", group: "K" },
+        { jp: "カン・サンヒョク", ko: "강상혁", en: "KANG SANG HYEOK", group: "K" },
+        { jp: "キム・ドユン", ko: "김도윤", en: "KIM DO YUN", group: "K" },
+        { jp: "キム・ハンビン", ko: "김한빈", en: "KIM HAN BIN", group: "K" },
+        { jp: "キム・ヒョビン", ko: "김효빈", en: "KIM HYO BIN", group: "K" },
+        { jp: "キム・イェジュン", ko: "김예준", en: "KIM YE JUN", group: "K" },
+        { jp: "ク・イェチャン", ko: "구예찬", en: "KOO YE CHAN", group: "K" },
+        { jp: "ク・ユジュン", ko: "구유준", en: "KOO YU JUN", group: "K" },
+        { jp: "クォン・ドンヒョン", ko: "권동현", en: "KWON DONG HYEON", group: "K" },
+        { jp: "クォン・ヒョンビン", ko: "권현빈", en: "KWON HYEON BIN", group: "K" },
+        { jp: "イ・ドヒョン", ko: "이도현", en: "LEE DO HYEON", group: "K" },
+        { jp: "イ・ゴン", ko: "이곤", en: "LEE GON", group: "K" },
+        { jp: "イ・ハジュン", ko: "이하준", en: "LEE HA JUN", group: "K" },
+        { jp: "イ・ヒョン", ko: "이현", en: "LEE HYEON", group: "K" },
+        { jp: "イ・ヒョンス", ko: "이현수", en: "LEE HYEON SU", group: "K" },
+        { jp: "イ・ジェフン", ko: "이재훈", en: "LEE JAE HOON", group: "K" },
+        { jp: "イ・ジョンヒョク", ko: "이종혁", en: "LEE JONG HYEOK", group: "K" },
+        { jp: "イ・ジュヒョン", ko: "이주ヒョク/ジュヒョン", en: "LEE JU HYEON", group: "K" },
+        { jp: "イ・カンヒ", ko: "이강희", en: "LEE KANG HEE", group: "K" },
+        { jp: "イ・ミンジェ", ko: "이민재", en: "LEE MIN JAE", group: "K" },
+        { jp: "イ・サンウォン", ko: "이상원", en: "LEE SAN WON", group: "K" },
+        { jp: "イ・スンウォン", ko: "이승원", en: "LEE SEUNG WON", group: "K" },
+        { jp: "イ・シウ", ko: "이시우", en: "LEE SI U", group: "K" },
+        { jp: "イ・スファン", ko: "이수환", en: "LEE SU HWAN", group: "K" },
+        { jp: "イ・スンジン", ko: "이승진", en: "LEE SEUNG JIN", group: "K" },
+        { jp: "イ・ウジン", ko: "이우진", en: "LEE WOO JIN", group: "K" },
+        { jp: "リム・シウ", ko: "림시우", en: "LIM SI U", group: "K" },
+        { jp: "マサト", ko: "마사토", en: "MASATO", group: "K" },
+        { jp: "ムン・イェチャン", ko: "문예찬", en: "MOON YE CHAN", group: "K" },
+        { jp: "オ・ハラム", ko: "오하람", en: "OH HA RAM", group: "K" },
+        { jp: "オ・ムンシク", ko: "오문식", en: "OH MOON SIK", group: "K" },
+        { jp: "オ・スミン", ko: "오수민", en: "OH SU MIN", group: "K" },
+        { jp: "パク・ハウン", ko: "박하은", en: "PARK HA EUN", group: "K" },
+        { jp: "パク・ジョンヒョン", ko: "박종현", en: "PARK JONG HYEON", group: "K" },
+        { jp: "パク・ミンセ", ko: "박민세", en: "PARK MIN SE", group: "K" },
+        { jp: "パク・スンヒ", ko: "박승희", en: "PARK SEUNG HEE", group: "K" },
+        { jp: "パク・シウ", ko: "박시우", en: "PARK SI U", group: "K" },
+        { jp: "パク・ウビン", ko: "박우빈", en: "PARK WOO BIN", group: "K" },
+        { jp: "リュ・ジュンミン", ko: "류준민", en: "RYU JUN MIN", group: "K" },
+        { jp: "ソ・ハンギョル", ko: "서한결", en: "SEO HAN GYEOL", group: "K" },
+        { jp: "ソ・イヌ", ko: "서인우", en: "SEO IN U", group: "K" },
+        { jp: "ソ・ギョンベ", ko: "서경배", en: "SEO KYEONG BAE", group: "K" },
+        { jp: "ソ・スンヒョン", ko: "서승현", en: "SEO SEUNG HYEON", group: "K" },
+        { jp: "ソク・マシューの兄等？/ソク...", ko: "석...", en: "석...", group: "K" },
+        { jp: "ソン・ヒョンソク", ko: "손현석", en: "SON HYEON SEOK", group: "K" },
+        { jp: "ソン・ギョンヒョン", ko: "송경현", en: "SONG KYEONG HYEON", group: "K" },
+        { jp: "ソン・ミンギュ", ko: "송민규", en: "SONG MIN GYU", group: "K" },
+        { jp: "シン・イェチャン", ko: "신예찬", en: "SHIN YE CHAN", group: "K" },
+        { jp: "タカヒロ", ko: "타카히로", en: "TAKAHIRO", group: "K" },
+        { jp: "タクト", ko: "탁토", en: "TAKUTO", group: "K" },
+        { jp: "ワン・ジンウク", ko: "왕진욱", en: "WANG JIN UK", group: "K" },
+        { jp: "ヤン・ジュンホ", ko: "양준호", en: "YANG JUN HO", group: "K" },
+        { jp: "ユ・ハミン", ko: "유하민", en: "YOO HA MIN", group: "K" },
+        { jp: "ユン・ドハ", ko: "윤도하", en: "YOON DO HA", group: "K" },
+        { jp: "ユン・ジェミン", ko: "윤재민", en: "YOON JAE MIN", group: "K" },
+
+        // --- Cグループ (92名) ---
+        { jp: "チャン・ハオメン", ko: "장하오멘", en: "ZHANG HAOMEN", group: "C" },
+        { jp: "チェン・ボユウ", ko: "천보유", en: "CHEN BO YOU", group: "C" },
+        { jp: "チェン・ハオラン", ko: "천하오란", en: "CHEN HAORAN", group: "C" },
+        { jp: "チェン・ジン", ko: "천진", en: "CHEN JIN", group: "C" },
+        { jp: "チェン・カイリン", ko: "천카이린", en: "CHEN KAILIN", group: "C" },
+        { jp: "チェン・カンジュン", ko: "천캉쥔", en: "CHEN KANGJUN", group: "C" },
+        { jp: "チェン・ランシュー", ko: "천란수", en: "CHEN LANSHUO", group: "C" },
+        { jp: "チェン・リャンイー", ko: "천량의", en: "CHEN LIANGYI", group: "C" },
+        { jp: "チェン・ルーティエン", ko: "천루톈", en: "CHEN LUOTIAN", group: "C" },
+        { jp: "チェン・シャオティエン", ko: "천샤오톈", en: "CHEN XIAOTIAN", group: "C" },
+        { jp: "チェン・ユーハン", ko: "천위한", en: "CHEN YUHAN", group: "C" },
+        { jp: "チイ・ピンルン", ko: "치빙런", en: "QI BINGLUN", group: "C" },
+        { jp: "ドウ・ハンリン", ko: "두한린", en: "DOU HANLIN", group: "C" },
+        { jp: "ファン・ティエチェン", ko: "황톄천", en: "HUANG TIECHEN", group: "C" },
+        { jp: "ファン・ユクン", ko: "황위쿤", en: "HUANG YUKUN", group: "C" },
+        { jp: "カン・ユエン", ko: "강원", en: "KANG YUAN", group: "C" },
+        { jp: "レイク", ko: "레이크", en: "LAKE", group: "C" },
+        { jp: "リ・イーファン", ko: "리이판", en: "LI YIFAN", group: "C" },
+        { jp: "リャン・シーカイ", ko: "량스카이", en: "LIANG SHIKAI", group: "C" },
+        { jp: "リン・ユーチェン", ko: "린위천", en: "LIN YUCHEN", group: "C" },
+        { jp: "リン・ユースー", ko: "린위쓰", en: "LIN YUSI", group: "C" },
+        { jp: "リウ・ハーハン", ko: "류허한", en: "LIU HEHAN", group: "C" },
+        { jp: "リウ・ハンイー", ko: "류한이", en: "LIU HANYI", group: "C" },
+        { jp: "リウ・ジーハオ", ko: "류지하오", en: "LIU ZHIHAO", group: "C" },
+        { jp: "ルー・ヤン", ko: "루양", en: "LU YANG", group: "C" },
+        { jp: "ルオ・カイミン", ko: "뤄카이밍", en: "LUO KAIMING", group: "C" },
+        { jp: "マイ・シュアン", ko: "마이쉬안", en: "MAI XUAN", group: "C" },
+        { jp: "シャオ・ユースー", ko: "샤오위쓰", en: "XIAO YUSI", group: "C" },
+        { jp: "シン・ユー", ko: "싱위", en: "XING YU", group: "C" },
+        { jp: "シュー・ジーハン", ko: "쉬즈한", en: "XU ZHIHAN", group: "C" },
+        { jp: "ヤン・ドゥオヤン", ko: "양둬양", en: "YANG DUOYANG", group: "C" },
+        { jp: "ヤン・シューハオ", ko: "양쉬하오", en: "YANG XUHAO", group: "C" },
+        { jp: "ザオ・リンチェン", ko: "자오린천", en: "ZHAO LINCHEN", group: "C" },
+        { jp: "ザオ・シーウェイ", ko: "자오시웨이", en: "ZHAO XIWEI", group: "C" },
+        { jp: "ザオ・ユーシェン", ko: "자오위성", en: "ZHAO YUSHENG", group: "C" },
+        { jp: "ズー・シンラン", ko: "쭈싱란", en: "ZHU XINGLAN", group: "C" },
+        { jp: "ゾウ・シュラオ", ko: "저우쉬라오", en: "ZHOU XURLAO", group: "C" },
+        { jp: "バイ・チェンラン", ko: "바이천란", en: "BAI CHENRAN", group: "C" },
+        { jp: "バオ・ハオラン", ko: "바오하오란", en: "BAO HAORAN", group: "C" },
+        { jp: "ビエン・カイチェン", ko: "볜카이천", en: "BIAN KAICHEN", group: "C" },
+        { jp: "ツァイ・ジョンリン", ko: "차이중린", en: "CAI ZHONGLIN", group: "C" },
+        { jp: "チェン・ジンホン", ko: "천징훙", en: "CHEN JINGHONG", group: "C" },
+        { jp: "チェン・ジャンユー", ko: "천장위", en: "CHEN JIANGYU", group: "C" },
+        { jp: "チェン・ユーフイ", ko: "천위후이", en: "CHEN YUHUI", group: "C" },
+        { jp: "クン・ユアン", ko: "쿤위안", en: "KUN YUAN", group: "C" },
+        { jp: "ディン・ズーアン", ko: "딩쯔안", en: "DING ZI’AN", group: "C" },
+        { jp: "ファン・ジャンユー", ko: "황장위", en: "HUANG JIANGYU", group: "C" },
+        { jp: "ファン・ジンイー", ko: "황징이", en: "HUANG JINGYI", group: "C" },
+        { jp: "ファン・ジュアン", ko: "황촨", en: "HUANG CHUAN", group: "C" },
+        { jp: "ファン・ユクン(重複分/記載)", ko: "황위쿤2", en: "HUANG YUKUN2", group: "C" },
+        { jp: "ジアン・イーフー", ko: "장위푸", en: "JIANG YUFU", group: "C" },
+        { jp: "ジャン・チーハオ", ko: "장치하오", en: "JIANG QIHAO", group: "C" },
+        { jp: "ジン・ヘンボー", ko: "진헝보", en: "JIN HENGBO", group: "C" },
+        { jp: "カイ・チーエン", ko: "카이치언", en: "KAI QI’EN", group: "C" },
+        { jp: "レイ・ユースー", ko: "레이위쓰", en: "LEI YUSI", group: "C" },
+        { jp: "リ・ジァンユー", ko: "리젠위", en: "LI JIANYU", group: "C" },
+        { jp: "リ・ユエニン", ko: "리웨닝", en: "LI YUENING", group: "C" },
+        { jp: "リャン・ボー", ko: "량보", en: "LIANG BO", group: "C" },
+        { jp: "リン・チーホウ", ko: "린치후", en: "LIN QIHOU", group: "C" },
+        { jp: "リウ・チャンズー", ko: "류창쯔", en: "LIU CHANGZI", group: "C" },
+        { jp: "リウ・ジーユエン", ko: "류지위안", en: "LIU ZHIYUAN", group: "C" },
+        { jp: "マ・チョン", ko: "마충", en: "MA CHONG", group: "C" },
+        { jp: "シャオ・ユアン", ko: "샤오위안", en: "XIAO YUAN", group: "C" },
+        { jp: "シャオ・ユーシュアン", ko: "샤오위쉬안", en: "XIAO YUXUAN", group: "C" },
+        { jp: "シン・シュアン", ko: "싱쉬안", en: "XING XUAN", group: "C" },
+        { jp: "シュー・ハン", ko: "쉬한", en: "XU HAN", group: "C" },
+        { jp: "シュー・ハンユン", ko: "쉬한윈", en: "XU HANYUN", group: "C" },
+        { jp: "シュー・チェン", ko: "쉬첸", en: "XU QIAN", group: "C" },
+        { jp: "ヤン・チーハオ", ko: "양치하오", en: "YANG QIHAO", group: "C" },
+        { jp: "ヤン・ハオラン", ko: "양하오란", en: "YANG HAORAN", group: "C" },
+        { jp: "ユン・リン", ko: "윈린", en: "YUN LIN", group: "C" },
+        { jp: "ザオ・ハイ", ko: "자오하이", en: "ZHAO HAI", group: "C" },
+        { jp: "ザオ・シーミン", ko: "자오시밍", en: "ZHAO XIMING", group: "C" },
+        { jp: "ザオ・ユードン", ko: "자오위둥", en: "ZHAO YUDONG", group: "C" },
+        { jp: "ザオ・ユールイ", ko: "자오위루이", en: "ZHAO YURUI", group: "C" },
+        { jp: "ザオ・ユージュン", ko: "자오위쥔", en: "ZHAO YUJUN", group: "C" },
+        { jp: "ゾウ・ハン", ko: "저우한", en: "ZHOU HAN", group: "C" },
+        { jp: "チェン・ジンホウ", ko: "천징후", en: "CHEN JINGHOU", group: "C" },
+        { jp: "チェン・カイユアン", ko: "천카이위안", en: "CHEN KAIYUAN", group: "C" },
+        { jp: "チェン・リン", ko: "천린", en: "CHEN LIN", group: "C" },
+        { jp: "チェン・ユアン", ko: "천위안", en: "CHEN YUAN", group: "C" },
+        { jp: "チェン・ズーハン", ko: "천쯔한", en: "ZIXUAN/CHEN", en: "C" },
+        { jp: "ダオ・ラン", ko: "다오란", en: "DAO LAN", group: "C" },
+        { jp: "ファン・ハオラン", ko: "황하오란", en: "HUANG HAORAN", group: "C" },
+        { jp: "カン・ユエン2", ko: "캉위안", en: "KANG YUAN 2", group: "C" },
+        { jp: "リー・ハイミン", ko: "리하이밍", en: "LI HAIMING", group: "C" },
+        { jp: "リン・チーホウ2", ko: "린치후2", en: "LIN QIHOU 2", group: "C" },
+        { jp: "ルオ・ジンユー", ko: "뤄징위", en: "LUO JINGYU", group: "C" },
+        { jp: "ワン・ジンウク等重複整理", ko: "왕...", en: "WANG...", group: "C" },
+        { jp: "ヤン・チーハオ2", ko: "양치하오2", en: "YANG QIHAO 2", group: "C" },
+        { jp: "ザオ・ユアン", ko: "자오위안", en: "ZHAO YUAN", group: "C" },
+        { jp: "ザオ・ユールイ2", ko: "자오위루이2", en: "ZHAO YURUI 2", group: "C" }
+    ];
+
+    let currentMode = 'ALL';
+    let pool = [];
+    let historyList = [];
+    let totalRounds = 0;
+    let currentRound = 0;
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.selector button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + mode).classList.add('active');
+        restart();
+    }
+
+    function getFilteredList() {
+        if (currentMode === 'K') return participants.filter(p => p.group === 'K');
+        if (currentMode === 'C') return participants.filter(p => p.group === 'C');
+        return [...participants];
+    }
+
+    function restart() {
+        const source = getFilteredList();
+        pool = [...source].sort(() => Math.random() - 0.5);
+        totalRounds = pool.length;
+        currentRound = 1;
+        historyList = [];
+        document.getElementById('battle-area').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+        nextBattle();
+    }
+
+    function updateProgress() {
+        document.getElementById('progress').innerText = `残り候補: ${pool.length + historyList.length*2} 人（サバイバル進行中）`;
+    }
+
+    function nextBattle() {
+        if (pool.length < 2) {
+            if (historyList.length === 0 && pool.length === 1) {
+                showFinalWinner(pool[0]);
+                return;
+            } else if (pool.length === 1 && historyList.length > 0) {
+                historyList.push(pool[0]);
+                pool = [...historyList];
+                historyList = [];
+            } else if (pool.length === 0 && historyList.length > 0) {
+                pool = [...historyList];
+                historyList = [];
+            }
+        }
+
+        if (pool.length < 2) {
+            showResult();
+            return;
+        }
+
+        updateProgress();
+        renderCard(0, pool[0]);
+        renderCard(1, pool);
+    }
+
+    function renderCard(idx, data) {
+        const badge = document.getElementById('badge' + idx);
+        badge.innerText = data.group + 'グループ';
+        badge.className = 'badge ' + data.group;
+        document.getElementById('nameJp' + idx).innerText = data.jp;
+        document.getElementById('nameKo' + idx).innerText = data.ko;
+        document.getElementById('nameEn' + idx).innerText = data.en;
+    }
+
+    function vote(choiceIdx) {
+        const winner = choiceIdx === 0 ? pool[0] : pool;
+        historyList.push(winner);
+        pool.splice(0, 2);
+        
+        if (pool.length === 0) {
+            pool = [...historyList];
+            historyList = [];
+        }
+
+        if (pool.length === 1 && historyList.length === 0) {
+            showFinalWinner(pool[0]);
+        } else {
+            nextBattle();
+        }
+    }
+
+    function showFinalWinner(winner) {
+        document.getElementById('battle-area').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('winner-box').innerHTML = `
+            <span class="badge ${winner.group}">${winner.group}グループ</span>
+            <div style="font-size: 26px; font-weight: bold; margin: 10px 0; color: #d63384;">${winner.jp}</div>
+            <div style="font-size: 14px; color: #555;">${winner.ko} / ${winner.en}</div>
+        `;
+    }
+
+    function showResult() {
+        showFinalWinner(pool[0]);
+    }
+
+    restart();
+</script>
+
+</body>
+</html>
