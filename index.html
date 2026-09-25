@@ -38,266 +38,856 @@
         
         .restart-btn { background: #333; color: white; padding: 12px 30px; font-size: 15px; border-radius: 30px; cursor: pointer; border: none; margin-top: 20px; }
     </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOYS II PLANET 好き顔サバイバル</title>
+
+<!-- =========================================================
+     フォント
+     ・Orbitron：SF / 宇宙っぽい英数字
+     ・Noto Sans JP：日本語
+     ※インターネット接続があるとGoogle Fontsが読み込まれます
+========================================================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <style>
-.choices-container.multi-select { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; max-width:900px; margin:0 auto 18px; }
-.choice-card { position:relative; user-select:none; }
-.choice-card.selected { border-color:var(--cyan)!important; background:linear-gradient(160deg,rgba(18,76,125,.98),rgba(5,28,60,.98))!important; box-shadow:0 0 0 3px rgba(99,243,255,.18),0 0 30px rgba(99,243,255,.30)!important; transform:translateY(-5px) scale(1.015); }
-.select-mark { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:transparent; border:1px solid rgba(99,243,255,.3); background:rgba(2,10,25,.75); font-weight:900; }
-.choice-card.selected .select-mark { color:#03111d; background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 15px rgba(99,243,255,.65); }
-.batch-controls { grid-column:1/-1; text-align:center; padding:8px 0 2px; }
-#batchNextButton { min-width:190px; }
-.round-note { color:var(--muted); font-size:11px; margin-top:7px; }
-@media(max-width:700px){ .choices-container.multi-select{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;} .choice-card{min-height:220px!important;padding:10px 6px!important;} .choice-card .photo-frame{width:105px!important;height:125px!important;} }
-</style>
+/* =========================================================
+   PLANET DESIGN
+   色を変更したい場合は、ここを中心に編集してください。
+========================================================= */
+:root {
+    --space-1: #030817;
+    --space-2: #07152f;
+    --space-3: #0b2147;
 
+    --blue: #4db8ff;
+    --blue-light: #9dddff;
+    --cyan: #63f3ff;
+    --purple: #8d7dff;
+
+    --text: #f4f9ff;
+    --muted: #91a8c7;
+
+    --card: rgba(8, 25, 57, 0.88);
+    --card-hover: rgba(15, 45, 91, 0.96);
+    --line: rgba(99, 243, 255, 0.35);
+    --glow: rgba(77, 184, 255, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px 50px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+
+    /* 星空 */
+    background:
+        radial-gradient(circle at 15% 20%, rgba(77,184,255,.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 80% 15%, rgba(255,255,255,.9) 0 1px, transparent 2px),
+        radial-gradient(circle at 62% 72%, rgba(99,243,255,.7) 0 1px, transparent 2px),
+        radial-gradient(circle at 28% 88%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+        radial-gradient(circle at 92% 55%, rgba(141,125,255,.8) 0 1px, transparent 2px),
+        linear-gradient(145deg, #020611 0%, #07142d 45%, #030817 100%);
+    background-size: 180px 180px, 260px 260px, 220px 220px, 300px 300px, 240px 240px, auto;
+    background-attachment: fixed;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(77,184,255,.13), transparent 38%),
+        linear-gradient(transparent 0%, rgba(2,6,17,.18) 100%);
+}
+
+.container {
+    position: relative;
+    width: min(1050px, 100%);
+    margin: 0 auto;
+    padding: 34px;
+    border: 1px solid rgba(99,243,255,.25);
+    border-radius: 28px;
+    background: rgba(3, 12, 30, .82);
+    box-shadow:
+        0 0 45px rgba(0, 90, 180, .16),
+        inset 0 0 35px rgba(77,184,255,.035);
+    backdrop-filter: blur(14px);
+}
+
+h1 {
+    margin: 0;
+    color: #eaf8ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(20px, 4vw, 34px);
+    letter-spacing: .08em;
+    text-shadow: 0 0 18px rgba(99,243,255,.6);
+}
+
+.subtitle {
+    margin: 10px 0 28px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .05em;
+}
+
+.selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+}
+
+button {
+    border: 1px solid rgba(99,243,255,.35);
+    border-radius: 999px;
+    padding: 11px 18px;
+    color: #cfefff;
+    background: rgba(10, 31, 66, .9);
+    font-family: 'Orbitron', 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    cursor: pointer;
+    transition: .22s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    border-color: var(--cyan);
+    box-shadow: 0 0 18px rgba(99,243,255,.22);
+}
+
+button.active {
+    color: #02101e;
+    border-color: var(--cyan);
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    box-shadow: 0 0 22px rgba(99,243,255,.35);
+}
+
+#progress {
+    margin: 10px 0 18px;
+    color: var(--blue-light);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-shadow: 0 0 10px rgba(77,184,255,.45);
+}
+
+/* =========================================================
+   ★ ここが「左右2択」の部分です
+   display:flex + width を明示しているので、
+   右側が subtitle の下に落ちる問題を防ぎます。
+========================================================= */
+.choices-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto 20px;
+}
+
+.choice-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 330px;
+    padding: 24px 18px 20px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background:
+        linear-gradient(160deg, rgba(13,44,88,.94), rgba(4,16,38,.96));
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.28),
+        inset 0 0 25px rgba(77,184,255,.045);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.choice-card:hover {
+    transform: translateY(-7px);
+    border-color: var(--cyan);
+    background:
+        linear-gradient(160deg, rgba(16,56,108,.98), rgba(5,20,47,.98));
+    box-shadow:
+        0 16px 40px rgba(0,0,0,.35),
+        0 0 28px rgba(77,184,255,.22);
+}
+
+.choice-card:active {
+    transform: translateY(-3px) scale(.99);
+}
+
+/* =========================================================
+   ★ 人物画像を後から入れる場所
+   現在は「PHOTO」のプレースホルダーです。
+   JSの participants に img: "images/xxx.jpg" を追加すると
+   自動的にこの枠へ画像が入ります。
+========================================================= */
+.photo-frame {
+    position: relative;
+    width: 190px;
+    height: 220px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(99,243,255,.5);
+    background:
+        radial-gradient(circle at 50% 35%, rgba(99,243,255,.15), transparent 42%),
+        linear-gradient(145deg, #0c2852, #020a1c);
+    box-shadow:
+        0 0 22px rgba(77,184,255,.13),
+        inset 0 0 20px rgba(99,243,255,.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(157,221,255,.7);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    letter-spacing: .15em;
+}
+
+.photo-frame::before {
+    content: "PHOTO";
+    position: absolute;
+    opacity: .75;
+}
+
+.photo-frame img {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.badge {
+    display: inline-block;
+    margin-bottom: 7px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.badge.K {
+    color: #bcecff;
+    background: rgba(77,184,255,.14);
+    border: 1px solid rgba(77,184,255,.35);
+}
+
+.badge.C {
+    color: #d9d0ff;
+    background: rgba(141,125,255,.14);
+    border: 1px solid rgba(141,125,255,.35);
+}
+
+.name-jp {
+    margin: 3px 0;
+    color: #f4f9ff;
+    font-size: 17px;
+    font-weight: 900;
+    text-shadow: 0 0 9px rgba(77,184,255,.22);
+}
+
+.name-sub {
+    margin: 2px 0;
+    color: #91b1d5;
+    font-size: 11px;
+    letter-spacing: .04em;
+}
+
+.help-text {
+    margin: 15px 0 0;
+    color: #718aaa;
+    font-size: 11px;
+}
+
+#result {
+    display: none;
+    margin-top: 25px;
+}
+
+#result h2 {
+    color: #eaf8ff;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 0 14px rgba(99,243,255,.45);
+}
+
+.result-subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 22px;
+}
+
+.grid-3x3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    max-width: 720px;
+    margin: 20px auto;
+}
+
+.grid-item {
+    position: relative;
+    min-width: 0;
+    padding: 14px 8px;
+    border: 1px solid rgba(99,243,255,.2);
+    border-radius: 16px;
+    background: rgba(7, 25, 55, .85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid-item.rank-1 {
+    border: 2px solid var(--cyan);
+    background: linear-gradient(145deg, rgba(12,58,101,.95), rgba(18,26,73,.95));
+    box-shadow: 0 0 30px rgba(99,243,255,.24);
+    transform: scale(1.04);
+    z-index: 2;
+}
+
+.grid-item .photo-frame {
+    width: 120px;
+    height: 140px;
+}
+
+.grid-item.rank-1 .photo-frame {
+    width: 140px;
+    height: 160px;
+}
+
+.rank-badge {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    z-index: 3;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #061426;
+    border: 1px solid rgba(99,243,255,.45);
+    color: #bcecff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.grid-item.rank-1 .rank-badge {
+    color: #03111d;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+}
+
+.restart-btn {
+    display: block;
+    margin: 25px auto 0;
+}
+
+@media (max-width: 700px) {
+    .container {
+        padding: 22px 14px 30px;
+    }
+
+    .choices-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .choice-card {
+        min-height: 300px;
+    }
+
+    .photo-frame {
+        width: 155px;
+        height: 185px;
+    }
+
+    .grid-3x3 {
+        gap: 8px;
+    }
+
+    .grid-item .photo-frame {
+        width: 85px;
+        height: 105px;
+    }
+
+    .grid-item.rank-1 .photo-frame {
+        width: 100px;
+        height: 120px;
+    }
+
+    .grid-item .name-jp {
+        font-size: 12px;
+    }
+}
+</style>
 </head>
 <body>
 
+<body>
 <div class="container">
     <h1>☆BOYS II PLANET 好き顔サバイバル☆</h1>
     <p class="subtitle">☆K(55名) / C(27N) 総勢82名から選ぶあなただけの（顔だけ）好きチーム☆</p>
     
-    <div class="selector" id="modeSelector">
+
+    <h1>✦ BOYS II PLANET ✦</h1>
+    <p class="subtitle">
+        FACE SURVIVAL / YOUR PLANET 9
+        <br>
+        K + C から「顔だけ」で選ぶ、あなたのTOP 9
+    </p>
+
+<div class="selector" id="modeSelector">
+        <button onclick="startSession('K')" id="btn-K">Kグループ (55名)</button>
+        <button onclick="startSession('C')" id="btn-C">Cグループ (27名)</button>
+        <button onclick="startSession('ALL')" id="btn-ALL" class="active">混合 K+C (82名)</button>
         <button onclick="startSession('K')" id="btn-K">K GROUP / 55</button>
         <button onclick="startSession('C')" id="btn-C">C GROUP / 27</button>
         <button onclick="startSession('ALL')" id="btn-ALL" class="active">ALL PLANET / 82</button>
-    </div>
+</div>
 
-    <div id="battle-area">
-        <p id="progress">準備中...</p>
-        <div class="choices-container" id="choicesBox"></div>
-        <p style="font-size: 12px; color: #999;">この中から、次のROUNDへ進めたいメンバーを選んでください</p>
-    </div>
+<div id="battle-area">
+<p id="progress">準備中...</p>
 
-    <div id="result">
-        <h2>✦ YOUR PLANET TOP 8 ✦</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">サバイバルを勝ち抜いた、あなたの好き顔TOP 8</p>
-        <div class="grid-3x3" id="debutGrid"></div>
+        <!-- ★ 左右2択がここに生成されます -->
+<div class="choices-container" id="choicesBox"></div>
+        <p style="font-size: 12px; color: #999;">一番顔が刺さるメンバーを選んでください（勝ち抜き戦）</p>
+
+        <p class="help-text">
+            ✦ 一番「顔が刺さる」メンバーを選んでください ✦
+        </p>
+</div>
+
+<div id="result">
+        <h2>🎉 あなたの好き顔 (TOP 9)</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">センター（1位）を中央にした3×3デビュー陣形</p>
+        <h2>✦ YOUR PLANET TOP 9 ✦</h2>
+        <p class="result-subtitle">
+            あなたが選んだ9人のデビューフォーメーション
+        </p>
+
+<div class="grid-3x3" id="debutGrid"></div>
         <button class="restart-btn" onclick="location.reload()">最初からやり直す</button>
-    </div>
+
+        <button class="restart-btn" onclick="location.reload()">
+            ↻ START AGAIN
+        </button>
+</div>
+
 </div>
 
 <script>
-const participants = [
-        // --- Kグループ (55名) ---
-        { jp: "アークティック", ko: "아틱", en: "ARCTIC", group: "K" },
-        { jp: "アオシ", ko: "아오시", en: "AOSHI", group: "K" },
-        { jp: "アンドリュー", ko: "앤드류", en: "ANDREW", group: "K" },
-        { jp: "イ・サンウォン", ko: "이상원", en: "LEE SANG WON", group: "K" },
-        { jp: "イ・スンベク", ko: "이승백", en: "LEE SEUNG BAEK", group: "K" },
-        { jp: "イ・ドンホン", ko: "이동헌", en: "LEE DONG HEON", group: "K" },
-        { jp: "イ・リオ", ko: "이리오", en: "LEE LEO", group: "K" },
-        { jp: "オ・ジュンホ", ko: "오준호", en: "OH JUN HO", group: "K" },
-        { jp: "カン・ウジン", ko: "강우진", en: "KANG WOO JIN", group: "K" },
-        { jp: "キム・イヌ", ko: "김인후", en: "KIM IN HU", group: "K" },
-        { jp: "キム・ゴヌ", ko: "김건우", en: "KIM GEON WOO", group: "K" },
-        { jp: "キム・ジェヒョン", ko: "김재현", en: "KIM JAE HYUN", group: "K" },
-        { jp: "キム・シファン", ko: "김시환", en: "KIM SI HWAN", group: "K" },
-        { jp: "キム・ジュンソ", ko: "김준서", en: "KIM JUN SEO", group: "K" },
-        { jp: "キム・ジュンミン", ko: "김준민", en: "KIM JUN MIN", group: "K" },
-        { jp: "キム・ダニエル", ko: "김다니엘", en: "KIM DANIEL", group: "K" },
-        { jp: "キム・テジョ", ko: "김태조", en: "KIM TAE JO", group: "K" },
-        { jp: "キム・ドンヒョンA", ko: "김동현A", en: "KIM DONG HYUN", group: "K" },
-        { jp: "キム・ドンヒョンB", ko: "김동현B", en: "KIM DONG HYUN", group: "K" },
-        { jp: "キム・ドンユン", ko: "김동윤", en: "KIM DONG YUN", group: "K" },
-        { jp: "キム・ヒョンソ", ko: "김현서", en: "KIM HYEON SEO", group: "K" },
-        { jp: "キム・ヨンジュン", ko: "김영준", en: "KIM YOUNG JUN", group: "K" },
-        { jp: "ショウ", ko: "쇼", en: "SHO", group: "K" },
-        { jp: "スィ・チンウィ", ko: "쉬청위", en: "HSU CHING YU", group: "K" },
-        { jp: "ソ・ウォン", ko: "서원", en: "SEO WON", group: "K" },
-        { jp: "ソン・ミンジェ", ko: "송민재", en: "SONG MIN JAE", group: "K" },
-        { jp: "タツキ", ko: "타츠키", en: "TATSUKI", group: "K" },
-        { jp: "チェ・リブ", ko: "최립우", en: "CHUEI LI YU", group: "K" },
-        { jp: "チャン・テユン", ko: "장태윤", en: "JANG TAE YOON", group: "K" },
-        { jp: "チャン・ハヌム", ko: "장한음", en: "JANG HAN EUM", group: "K" },
-        { jp: "チョ・ケヒョン", ko: "조계현", en: "JO GYE HYEON", group: "K" },
-        { jp: "チョン・イジョン", ko: "전이정", en: "JUN LEE JEONG", group: "K" },
-        { jp: "チョン・サンヒョン", ko: "정상현", en: "CHUNG SANG HYEON", group: "K" },
-        { jp: "チョン・ヒョンジュン", ko: "정현준", en: "JUNG HYUN JUN", group: "K" },
-        { jp: "ナ・ユンソ", ko: "나윤서", en: "NA YUN SEO", group: "K" },
-        { jp: "ノ・フィジュン", ko: "노휘준", en: "NOH HUI JUN", group: "K" },
-        { jp: "パク・ジュニル", ko: "박준일", en: "PARK JUN IL", group: "K" },
-        { jp: "パク・ドンギュ", ko: "박동규", en: "PARK DONG GYU", group: "K" },
-        { jp: "ハム・ヒョンソ", ko: "함현서", en: "HAM HYUN SEO", group: "K" },
-        { jp: "バン・ジュンヒョク", ko: "방준혁", en: "BANG JUN HYUK", group: "K" },
-        { jp: "ハン・ハリジュン", ko: "한해리준", en: "HAN HARRY JUNE", group: "K" },
-        { jp: "マサト", ko: "마사토", en: "MASATO", group: "K" },
-        { jp: "ムン・ウォンジュン", ko: "문원준", en: "MUHN WON JUN", group: "K" },
-        { jp: "ヤン・ダウィット", ko: "양다윗", en: "YANG DA WIT", group: "K" },
-        { jp: "ヤン・ヒチャン", ko: "양희찬", en: "YANG HEUI CHAN", group: "K" },
-        { jp: "ユ・カンミン", ko: "유강민", en: "YOO KANG MIN", group: "K" },
-        { jp: "ユセン", ko: "유센", en: "YUSEN", group: "K" },
-        { jp: "ユメキ", ko: "유메키", en: "YUMEKI", group: "K" },
-        { jp: "ユン・ミン", ko: "윤민", en: "YOON MIN", group: "K" },
-        { jp: "ヨム・イェチャン", ko: "염예찬", en: "YEOM YE CHAN", group: "K" },
-        { jp: "リオン", ko: "리온", en: "REEONN", group: "K" },
-        { jp: "レンショウ", ko: "렌쇼", en: "RENSHO", group: "K" },
+/* =========================================================
+   ★ メンバー情報
+   画像を入れるときは、各メンバーに
 
-        // --- Cグループ (27名) ---
-        { jp: "ビエンシーユー", ko: "비엔스위", en: "BIAN SHI YU", group: "C" },
-        { jp: "チェン・ボーウェン", ko: "천보원", en: "CHEN BO WEN", group: "C" },
-        { jp: "チェン・カイウェン", ko: "천카이원", en: "CHEN KAI WEN", group: "C" },
-        { jp: "クリセン ヤン", ko: "크리센 양", en: "CHRISEN YANG", group: "C" },
-        { jp: "ダン・ホン・ハイ", ko: "당홍하이", en: "DANG HONG HAI", group: "C" },
-        { jp: "ドン・ジンコン", ko: "동징쿤", en: "DONG JING KUN", group: "C" },
-        { jp: "ファンジョーイー", ko: "판저이", en: "FAN ZHE YI", group: "C" },
-        { jp: "グオ・ジェン", ko: "궈쩐", en: "GUO ZHEN", group: "C" },
-        { jp: "ホー・シンロン", ko: "허씬롱", en: "HE XIN LONG", group: "C" },
-        { jp: "ホー・ジョンシン", ko: "허중싱", en: "HE ZHONG XING", group: "C" },
-        { jp: "ホン・ジーハン", ko: "홍쯔한", en: "HONG ZHI HAN", group: "C" },
-        { jp: "ホンズーハオ", ko: "홍쯔하오", en: "HONG ZIH HAO", group: "C" },
-        { jp: "フー・ハンウェン", ko: "후한원", en: "HU HAN WEN", group: "C" },
-        { jp: "ジアンファン", ko: "지앙판", en: "JIANG FAN", group: "C" },
-        { jp: "コ・ミン・チエ", ko: "커밍지에", en: "KO MING CHIEH", group: "C" },
-        { jp: "リー・ツーハオ", ko: "리즈하오", en: "LI ZI HAO", group: "C" },
-        { jp: "ニエン・ボー・ホン", ko: "니안보행", en: "NIAN BO HENG", group: "C" },
-        { jp: "ポン・ジンユー", ko: "펑진위", en: "PENG JIN YU", group: "C" },
-        { jp: "セン", ko: "센", en: "SEN", group: "C" },
-        { jp: "スン・ホンユー", ko: "쑨형위", en: "SUN HENG YU", group: "C" },
-        { jp: "スンジアイアン", ko: "쑨지아양", en: "SUN JIA YANG", group: "C" },
-        { jp: "タイガ", ko: "타이가", en: "TAIGA", group: "C" },
-        { jp: "シュエ・スーレン", ko: "쉬예수런", en: "XUE SU REN", group: "C" },
-        { jp: "イーチェン", ko: "이첸", en: "YI CHEN", group: "C" },
-        { jp: "ジャンジアハオ", ko: "장지아하오", en: "ZHANG JIA HAO", group: "C" },
-        { jp: "ジャン・シュンユー", ko: "장순위", en: "ZHANG SHUN YU", group: "C" },
-        { jp: "ジャオ・グアンシュー", ko: "자오광쉬", en: "ZHAO GUANG XU", group: "C" },
-        { jp: "ジョウアンシン", ko: "조우안신", en: "ZHOU AN XIN", group: "C" }
-    ]
+       img: "images/lee_leo.jpg",
+
+   のように追加してください。
+
+   例：
+   {
+       jp: "イ・リオ",
+       ko: "이리오",
+       en: "LEE LEO",
+       group: "K",
+       img: "images/lee_leo.jpg"
+   }
+
+   ※画像フォルダをHTMLと同じ場所に作ると分かりやすいです。
+========================================================= */
+
+const participants = [
+// --- Kグループ (55名) ---
+{ jp: "アークティック", ko: "아틱", en: "ARCTIC", group: "K" },
+@@ -152,174 +552,215 @@ <h2>🎉 あなたの好き顔 (TOP 9)</h2>
+{ jp: "ジョウアンシン", ko: "조우안신", en: "ZHOU AN XIN", group: "C" }
+];
+
+    let currentPool = [];
+    let selectedTop9 = [];
+    let choiceCount = 3; // 2〜4択可変
+
+    function startSession(mode) {
+        document.querySelectorAll('.selector button').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-' + mode).classList.add('active');
+        
+        let source = [...participants];
+        if (mode === 'K') source = source.filter(p => p.group === 'K');
+        if (mode === 'C') source = source.filter(p => p.group === 'C');
+        
+        currentPool = source.sort(() => Math.random() - 0.5);
+        selectedTop9 = [];
+        
+        document.getElementById('battle-area').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+        nextRound();
 
 /* =========================================================
-   ★ FACE SURVIVAL
-   ALL: 82 → 40 → 20 → 12 → TOP 8
-   9人前後を1グループとして複数人を選抜
+   ゲーム本体
 ========================================================= */
+
 let currentPool = [];
-let nextPool = [];
-let selectedInBatch = [];
-let currentRound = 0;
-let currentBatch = [];
-let currentPickCount = 0;
+let selectedTop9 = [];
 
-const ROUND_TARGETS = [40, 20, 12, 8];
-const ROUND_NAMES = ['1st ROUND','2nd ROUND','3rd ROUND','FINAL SURVIVAL'];
 
-function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
-
+/* ---------------------------------------------------------
+   グループ選択
+--------------------------------------------------------- */
 function startSession(mode) {
-  document.querySelectorAll('#modeSelector button').forEach(b=>b.classList.remove('active'));
-  const active=document.getElementById('btn-'+mode); if(active) active.classList.add('active');
-  let source=[...participants];
-  if(mode==='K') source=source.filter(p=>p.group==='K');
-  if(mode==='C') source=source.filter(p=>p.group==='C');
-  currentPool=shuffle(source);
-  nextPool=[]; selectedInBatch=[]; currentRound=0; currentBatch=[]; currentPickCount=0;
-  document.getElementById('battle-area').style.display='block';
-  document.getElementById('result').style.display='none';
-  startRound();
+
+    document.querySelectorAll('.selector button')
+        .forEach(button => button.classList.remove('active'));
+
+    document.getElementById('btn-' + mode).classList.add('active');
+
+    let source = [...participants];
+
+    if (mode === 'K') {
+        source = source.filter(person => person.group === 'K');
 }
 
-function startRound() {
-  if(currentPool.length<=8) return showTop8Result();
-  if(currentRound>=ROUND_TARGETS.length) return showTop8Result();
-  const target=Math.min(ROUND_TARGETS[currentRound],currentPool.length-1);
-  nextPool=[];
-  // グループ数を決め、各グループを8〜9人程度にする
-  const groupCount=Math.ceil(currentPool.length/9);
-  const batches=makeBatches(shuffle(currentPool),groupCount);
-  currentPool=[];
-  window.roundBatches=batches; window.roundBatchIndex=0; window.roundTarget=target;
-  showNextBatch();
+    function nextRound() {
+        if (selectedTop9.length >= 9) {
+            showTop9Result();
+            return;
+        }
+    if (mode === 'C') {
+        source = source.filter(person => person.group === 'C');
+    }
+
+        // 残り人数に応じて択数（2〜4択）を動的決定
+        let remainingNeeded = 9 - selectedTop9.length;
+        if (currentPool.length < remainingNeeded) {
+            // プールが足りなくなったら残りを全部追加
+            selectedTop9.push(...currentPool);
+            showTop9Result();
+            return;
+        }
+    currentPool = source.sort(() => Math.random() - 0.5);
+    selectedTop9 = [];
+
+    document.getElementById('battle-area').style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+
+    nextRound();
 }
 
-function makeBatches(pool,count) {
-  const batches=[]; const base=Math.floor(pool.length/count); const extra=pool.length%count; let pos=0;
-  for(let i=0;i<count;i++){ const size=base+(i<extra?1:0); batches.push(pool.slice(pos,pos+size)); pos+=size; }
-  return batches;
+        choiceCount = Math.min(4, Math.max(2, remainingNeeded + 1, Math.min(currentPool.length, 3)));
+        
+        // 選択肢の数だけプールから取り出す（または表示用サンプリング）
+        // ここではプール先頭から choiceCount 個を対決提示
+        const currentBatch = currentPool.slice(0, choiceCount);
+        
+        document.getElementById('progress').innerText = `【第 ${selectedTop9.length + 1} / 9 位を選出中】（残りプール: ${currentPool.length}人）`;
+        
+        const box = document.getElementById('choicesBox');
+        box.innerHTML = '';
+        currentBatch.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'choice-card';
+            card.onclick = () => chooseWinner(idx, currentBatch);
+            
+            const photoHtml = item.img 
+                ? `<div class="photo-frame"><img src="${item.img}" alt="${item.jp}"></div>`
+                : `<div class="photo-frame">${item.jp.slice(0, 1)}</div>`;
+                
+            card.innerHTML = `
+                ${photoHtml}
+                <span class="badge ${item.group}">${item.group}</span>
+                <div class="name-jp">${item.jp}</div>
+                <div class="name-sub">${item.ko}</div>
+                <div class="name-sub">${item.en}</div>
+            `;
+            box.appendChild(card);
+        });
+
+/* ---------------------------------------------------------
+   次の対決を表示
+   ★ 必ず「左1人 + 右1人」の2択
+--------------------------------------------------------- */
+function nextRound() {
+
+    if (selectedTop9.length >= 9 || currentPool.length === 0) {
+        showTop9Result();
+        return;
 }
 
-function showNextBatch() {
-  const batches=window.roundBatches||[]; const i=window.roundBatchIndex;
-  if(i>=batches.length) return finishRound();
-  currentBatch=batches[i];
-  const remainingGroups=batches.length-i;
-  const already=nextPool.length;
-  const remainingNeed=window.roundTarget-already;
-  // 目標人数を最後まで均等に配分
-  let pick=Math.floor(remainingNeed/remainingGroups);
-  if(remainingNeed%remainingGroups!==0) pick+=1;
-  pick=Math.max(1,Math.min(pick,currentBatch.length));
-  currentPickCount=pick; selectedInBatch=[];
-  renderBatch();
+    function chooseWinner(chosenIdx, currentBatch) {
+        const winner = currentBatch[chosenIdx];
+        selectedTop9.push(winner);
+        
+        // 選ばれた人をプールから全体削除
+        currentPool = currentPool.filter(p => p !== winner);
+        // 残りのバッチメンバーはプールから除去、または次ラウンドへ回すなど、シンプルな削り込み
+        currentBatch.forEach(item => {
+            currentPool = currentPool.filter(p => p !== item);
+        });
+        
+        // まだ選択肢に漏れたメンバーがプールに残っていればシャッフルし直す
+        currentPool.sort(() => Math.random() - 0.5);
+        
+        nextRound();
+    // 最後に残った人数が9人以下なら、そのままTOP9へ
+    if (currentPool.length <= 9 - selectedTop9.length) {
+        selectedTop9.push(...currentPool);
+        showTop9Result();
+        return;
 }
 
-function renderBatch() {
-  const cfg=ROUND_NAMES[currentRound];
-  const target=window.roundTarget;
-  const box=document.getElementById('choicesBox');
-  box.className='choices-container multi-select'; box.innerHTML='';
-  document.getElementById('progress').innerHTML=`<div style="font-size:17px;margin-bottom:5px;">✦ ${cfg} ✦</div><div><strong>${currentPool.length+nextPool.length+currentBatch.length}</strong> → <strong style="color:#63f3ff">${target} SURVIVORS</strong></div><div class="round-note">この${currentBatch.length}人から <strong style="color:#63f3ff">${currentPickCount}人</strong> 選択</div>`;
-  currentBatch.forEach(item=>{
-    const card=document.createElement('div'); card.className='choice-card';
-    const photo=item.img?`<div class="photo-frame"><img src="${item.img}" alt="${item.jp}"></div>`:`<div class="photo-frame">${item.jp.slice(0,1)}</div>`;
-    card.innerHTML=`${photo}<span class="badge ${item.group}">${item.group} GROUP</span><div class="name-jp">${item.jp}</div><div class="name-sub">${item.ko}</div><div class="name-sub">${item.en}</div><div class="select-mark">✓</div>`;
-    card.onclick=()=>toggleSelection(item,card); box.appendChild(card);
-  });
-  const controls=document.createElement('div'); controls.className='batch-controls';
-  controls.innerHTML=`<div id="selectedCount" style="color:#91a8c7;font-size:12px;margin-bottom:9px">0 / ${currentPickCount}人 選択中</div><button id="batchNextButton" class="restart-btn" disabled style="opacity:.4;cursor:not-allowed;margin-top:0">NEXT →</button>`;
-  box.appendChild(controls);
-  document.getElementById('batchNextButton').onclick=advanceBatch;
+    function showTop9Result() {
+        document.getElementById('battle-area').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        
+        // 3×3 のインデックス配置順：
+        // 3位(index 2) | 1位センター(index 0) | 2位(index 1)
+        // 6位(index 5) | 4位(index 3)         | 5位(index 4)
+        // 9位(index 8) | 7位(index 6)         | 8位(index 7)
+        // アイドル布陣の見栄えとして一般的な：
+        // [ 6位, 2位(サブセンター), 7位 ]
+        // [ 4位, 1位(真ん中センター), 5位 ]
+        // [ 9位, 3位(サブセンター), 8位 ]
+        // もしくはシンプルな上から順（1〜9番目を綺麗な配列に並べる）
+        const top9 = selectedTop9.slice(0, 9);
+        
+        // 3x3 アイドルのフォーメーション配列配置インデックス [gridPos0..8]
+        // 順序: 
+        // 0: 4位, 1: 2位, 2: 5位
+        // 3: 6位, 4: 1位(センター), 5: 7位
+        // 6: 8位, 7: 3位, 8: 9位  ...のように真ん中に1位を置く配置マップ：
+        const formationMap =; // ※トップ9内のインデックスを綺麗に配置
+        // シンプルに 1位を真ん中（index 4）にする専用配置（上位9人のうち index 0 が 1位）
+        const arranged = [
+            top9[3] || {}, top9 || {}, top9 || {},
+            top9 || {}, top9[0] || {}, top9 || {}, // センター(1位)が真ん中左/中央等
+            top9 || {}, top9 || {}, top9 || {}
+        ];
+        
+        // より直感的に：中央(4番目のマス)に 1位(index 0)、周囲に 2〜9位を綺麗に配置
+        // 視覚用固定グリッドスロット（9マス: 0〜8）
+        const slots = [
+            top9[5], top9, top9, // 2行目 or 周囲
+            top9, top9[0], top9, // 中央 slot が 1位！
+            top9, top9, top9
+        ];
+        // 綺麗に入れ替え：
+        // slot 4 (真ん中) = top9[0] (1位)
+        // 残り top9[1..8] を綺麗に埋める
+        const gridData = new Array(9).fill(null);
+        gridData = top9[0]; // 1位真ん中
+        let idxCounter = 1;
+        const surroundingIndices =;
+        surroundingIndices.forEach(pos => {
+            if (idxCounter < top9.length) {
+                gridData[pos] = top9[idxCounter++];
+            }
+        });
+
+        const gridBox = document.getElementById('debutGrid');
+        gridBox.innerHTML = '';
+        
+        gridData.forEach((member, i) => {
+            const cell = document.createElement('div');
+            if (!member || !member.jp) {
+                cell.className = 'grid-item';
+                cell.style.opacity = '0.3';
+                cell.innerHTML = `<div style="font-size:20px;color:#ccc;">Empty</div>`;
+                gridBox.appendChild(cell);
+                return;
+            }
+            
+            const isCenter1st = (i === 4);
+            cell.className = 'grid-item' + (isCenter1st ? ' rank-1' : '');
+            
+            // 実際の順位を計算
+            const actualRank = top9.indexOf(member) + 1;
+            const rankLabel = isCenter1st ? '👑 CENTER (1位)' : `#${actualRank}`;
+            
+            const photoHtml = member.img 
+                ? `<div class="photo-frame" style="${isCenter1st?'width:105px;height:105px;':''}"><img src="${member.img}" alt="${member.jp}"></div>`
+                : `<div class="photo-frame" style="${isCenter1st?'width:105px;height:105px;font-size:34px;':''}">${member.jp.slice(0, 1)}</div>`;
+                
+            cell.innerHTML = `
+                <div class="rank-badge">${rankLabel}</div>
+                ${photoHtml}
+                <span class="badge ${member.group}">${member.group}</span>
+                <div class="name-jp" style="${isCenter1st?'font-size:17px;color:#d63384;':''}">${member.jp}</div>
+                <div class="name-sub">${member.en}</div>
+            `;
+    // ランダムに2人を選ぶ
+    const currentBatch = currentPool
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 2);
+
+    document.getElementById('progress').innerText =
+        `ROUND ${selectedTop9.length + 1} / TOP 9　|　残り ${currentPool.length} 人`;
+
+    const box = document.getElementById('choicesBox');
+    box.innerHTML = '';
+
+    currentBatch.forEach((item, index) => {
+
+        const card = document.createElement('div');
+        card.className = 'choice-card';
+
+        // カード全体をクリック可能にする
+        card.onclick = () => chooseWinner(item, currentBatch);
+
+        /*
+         * ★ 画像表示
+         * img が登録されていれば画像を表示。
+         * なければ PHOTO のプレースホルダーを表示。
+         */
+        const photoHtml = item.img
+            ? `<div class="photo-frame">
+                   <img src="${item.img}" alt="${item.jp}">
+               </div>`
+            : `<div class="photo-frame">${item.jp.slice(0, 1)}</div>`;
+
+        card.innerHTML = `
+            ${photoHtml}
+            <span class="badge ${item.group}">
+                ${item.group} GROUP
+            </span>
+            <div class="name-jp">${item.jp}</div>
+            <div class="name-sub">${item.ko}</div>
+            <div class="name-sub">${item.en}</div>
+        `;
+
+        box.appendChild(card);
+    });
 }
 
-function toggleSelection(item,card) {
-  const idx=selectedInBatch.indexOf(item);
-  if(idx>=0) { selectedInBatch.splice(idx,1); card.classList.remove('selected'); }
-  else { if(selectedInBatch.length>=currentPickCount) return; selectedInBatch.push(item); card.classList.add('selected'); }
-  const ready=selectedInBatch.length===currentPickCount;
-  document.getElementById('selectedCount').textContent=`${selectedInBatch.length} / ${currentPickCount}人 選択中`;
-  const btn=document.getElementById('batchNextButton'); btn.disabled=!ready; btn.style.opacity=ready?'1':'.4'; btn.style.cursor=ready?'pointer':'not-allowed';
+
+/* ---------------------------------------------------------
+   選択したメンバーをTOP9へ
+--------------------------------------------------------- */
+function chooseWinner(winner, currentBatch) {
+
+    selectedTop9.push(winner);
+
+    // 選んだ人 + 今回負けた人をプールから削除
+    currentPool = currentPool.filter(
+        person => !currentBatch.includes(person)
+    );
+
+    nextRound();
 }
 
-function advanceBatch() {
-  if(selectedInBatch.length!==currentPickCount) return;
-  nextPool.push(...selectedInBatch);
-  window.roundBatchIndex++;
-  showNextBatch();
+
+/* ---------------------------------------------------------
+   TOP9表示
+--------------------------------------------------------- */
+function showTop9Result() {
+
+    document.getElementById('battle-area').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+
+    const top9 = selectedTop9.slice(0, 9);
+
+    /*
+     * 1位を中央に配置。
+     * 残り8人を時計回りに配置。
+     *
+     *       2  3  4
+     *       5  1  6
+     *       7  8  9
+     */
+    const gridData = new Array(9).fill(null);
+
+    gridData[4] = top9[0];
+
+    const surroundingPositions = [
+        0, 1, 2,
+        3,    5,
+        6, 7, 8
+    ];
+
+    let rankIndex = 1;
+
+    surroundingPositions.forEach(position => {
+        if (rankIndex < top9.length) {
+            gridData[position] = top9[rankIndex];
+            rankIndex++;
+        }
+    });
+
+    const gridBox = document.getElementById('debutGrid');
+    gridBox.innerHTML = '';
+
+    gridData.forEach((member, index) => {
+
+        const cell = document.createElement('div');
+
+        if (!member) {
+            cell.className = 'grid-item';
+            cell.innerHTML = '<div style="padding:30px;color:#5f7695;">—</div>';
+gridBox.appendChild(cell);
+        });
+    }
+            return;
+        }
+
+    // 初期起動
+    startSession('ALL');
+</script>
+        const isCenter = index === 4;
+        cell.className = 'grid-item' + (isCenter ? ' rank-1' : '');
+
+        const actualRank = top9.indexOf(member) + 1;
+
+        const photoHtml = member.img
+            ? `<div class="photo-frame">
+                   <img src="${member.img}" alt="${member.jp}">
+               </div>`
+            : `<div class="photo-frame">${member.jp.slice(0, 1)}</div>`;
+
+        cell.innerHTML = `
+            <div class="rank-badge">
+                ${isCenter ? '★ CENTER / #1' : '#' + actualRank}
+            </div>
+
+            ${photoHtml}
+
+            <span class="badge ${member.group}">
+                ${member.group} GROUP
+            </span>
+
+            <div class="name-jp">
+                ${member.jp}
+            </div>
+
+            <div class="name-sub">
+                ${member.en}
+            </div>
+        `;
+
+        gridBox.appendChild(cell);
+    });
 }
 
-function finishRound() {
-  // 念のため目標人数に足りない場合だけ補充（通常はぴったり）
-  if(nextPool.length<window.roundTarget) {
-    const need=window.roundTarget-nextPool.length;
-    const leftovers=shuffle(window.roundBatches.flat().filter(p=>!nextPool.includes(p)));
-    nextPool.push(...leftovers.slice(0,need));
-  }
-  currentPool=shuffle(nextPool).slice(0,window.roundTarget);
-  nextPool=[]; currentRound++;
-  if(currentPool.length<=8) showTop8Result(); else startRound();
-}
 
-function showTop8Result() {
-  const top8=shuffle(currentPool).slice(0,8);
-  document.getElementById('battle-area').style.display='none';
-  document.getElementById('result').style.display='block';
-  const title=document.querySelector('#result h2'); if(title) title.textContent='✦ YOUR PLANET TOP 8 ✦';
-  const sub=document.querySelector('#result .result-subtitle'); if(sub) sub.textContent='サバイバルを勝ち抜いた、あなたの好き顔TOP 8';
-  const grid=document.getElementById('debutGrid'); grid.innerHTML='';
-  // 8人なので1位を中央寄りにして、残り7人を周囲へ
-  const positions=[0,1,2,3,5,6,7,8];
-  const arranged=new Array(9).fill(null);
-  positions.forEach((pos,i)=>arranged[pos]=top8[i]);
-  arranged.forEach((member,i)=>{
-    const cell=document.createElement('div'); cell.className='grid-item'+(member===top8[0]?' rank-1':'');
-    if(!member){ cell.innerHTML=''; grid.appendChild(cell); return; }
-    const rank=top8.indexOf(member)+1;
-    const photo=member.img?`<div class="photo-frame"><img src="${member.img}" alt="${member.jp}"></div>`:`<div class="photo-frame">${member.jp.slice(0,1)}</div>`;
-    cell.innerHTML=`<div class="rank-badge">${rank===1?'★ CENTER / #1':'#'+rank}</div>${photo}<span class="badge ${member.group}">${member.group} GROUP</span><div class="name-jp">${member.jp}</div><div class="name-sub">${member.ko}</div><div class="name-sub">${member.en}</div>`;
-    grid.appendChild(cell);
-  });
-}
-
+/* =========================================================
+   初期起動
+========================================================= */
 startSession('ALL');
 </script>
-
 </body>
 </html>
